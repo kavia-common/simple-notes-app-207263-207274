@@ -5,12 +5,22 @@ const DEFAULT_API_BASE_URL = "http://localhost:3001";
 
 /**
  * Build the backend base URL.
- * - Prefer `REACT_APP_NOTES_API_BASE_URL` when configured in the environment.
- * - Fallback to localhost for local dev.
+ *
+ * Resolution order:
+ * 1) `REACT_APP_API_BASE` (provided via .project_manifest.yaml env: REACT_APP_API_BASE)
+ * 2) `REACT_APP_BACKEND_URL` (provided via .project_manifest.yaml env: REACT_APP_BACKEND_URL)
+ * 3) `REACT_APP_NOTES_API_BASE_URL` (legacy/manual override)
+ * 4) Fallback to localhost for local dev.
  */
 function getApiBaseUrl() {
-  const env = process.env.REACT_APP_NOTES_API_BASE_URL;
-  return (env && env.trim()) ? env.trim().replace(/\/+$/, "") : DEFAULT_API_BASE_URL;
+  const candidates = [
+    process.env.REACT_APP_API_BASE,
+    process.env.REACT_APP_BACKEND_URL,
+    process.env.REACT_APP_NOTES_API_BASE_URL,
+  ];
+
+  const env = candidates.find((v) => typeof v === "string" && v.trim());
+  return env ? env.trim().replace(/\/+$/, "") : DEFAULT_API_BASE_URL;
 }
 
 // PUBLIC_INTERFACE
